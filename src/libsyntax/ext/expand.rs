@@ -1143,8 +1143,8 @@ impl ast_fold for Injector {
 // program (ick). This should run before cfg stripping.
 pub fn inject_std_macros(parse_sess: @mut parse::ParseSess,
                          cfg: ast::CrateConfig,
-                         c: @Crate)
-                         -> @Crate {
+                         c: Crate)
+                         -> Crate {
     let sm = match parse_item_from_source_str(@"<std-macros>",
                                               std_macros(),
                                               cfg.clone(),
@@ -1157,7 +1157,7 @@ pub fn inject_std_macros(parse_sess: @mut parse::ParseSess,
     let injector = @Injector {
         sm: sm,
     } as @ast_fold;
-    @injector.fold_crate(c)
+    injector.fold_crate(c)
 }
 
 struct NoOpFolder {
@@ -1214,7 +1214,7 @@ impl ast_fold for MacroExpander {
 
 pub fn expand_crate(parse_sess: @mut parse::ParseSess,
                     cfg: ast::CrateConfig,
-                    c: &Crate) -> @Crate {
+                    c: Crate) -> Crate {
     // adding *another* layer of indirection here so that the block
     // visitor can swap out one exts table for another for the duration
     // of the block.  The cleaner alternative would be to thread the
@@ -1227,7 +1227,7 @@ pub fn expand_crate(parse_sess: @mut parse::ParseSess,
         cx: cx,
     } as @ast_fold;
 
-    let ret = @expander.fold_crate(c);
+    let ret = expander.fold_crate(c);
     parse_sess.span_diagnostic.handler().abort_if_errors();
     return ret;
 }
